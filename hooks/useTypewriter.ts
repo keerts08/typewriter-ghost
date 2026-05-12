@@ -30,21 +30,18 @@ export function useTypewriter(options: Options = {}) {
     onKeystroke = options.onKeystroke,
   } = options;
 
-  const [quote, setQuote] = useState<Quote>(getRandomQuote());
+  const [quote, setQuote] = useState<Quote>(getRandomQuote);
   const [displayText, setDisplayText] = useState("");
   const [phase, setPhase] = useState<Phase>("typing");
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const clearTimer = useCallback(() => {
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-    }
+    if (timerRef.current) clearTimeout(timerRef.current);
   }, []);
 
-  // typing effect
   useEffect(() => {
-    if (phase !== "typing" && phase !== "erasing") return;
+    if (phase !== "typing") return;
 
     if (displayText.length >= quote.text.length) {
       timerRef.current = setTimeout(() => setPhase("pausing"), 100);
@@ -52,7 +49,6 @@ export function useTypewriter(options: Options = {}) {
     }
 
     const nextChar = quote.text[displayText.length];
-
     onKeystroke?.(nextChar);
 
     const punctuationDelay =
@@ -62,7 +58,7 @@ export function useTypewriter(options: Options = {}) {
           ? 120
           : 0;
 
-    const jitter = Math.random() * 40 - 20; // random jitter between -20 and +20 ms
+    const jitter = Math.random() * 40 - 20;
 
     timerRef.current = setTimeout(
       () => {
@@ -72,47 +68,47 @@ export function useTypewriter(options: Options = {}) {
     );
 
     return clearTimer;
-  }, [displayText, quote.text, phase, typeSpeed, onKeystroke, clearTimer]);
+  }, [phase, displayText, quote.text, typeSpeed, onKeystroke, clearTimer]);
 
-  // pausing effect
   useEffect(() => {
     if (phase !== "pausing") return;
 
-    timerRef.current = setTimeout(() => setPhase("haunted"), pauseDuration);
+    timerRef.current = setTimeout(() => {
+      setPhase("haunted");
+    }, pauseDuration);
 
     return clearTimer;
   }, [phase, pauseDuration, clearTimer]);
 
-  // haunted effect
   useEffect(() => {
     if (phase !== "haunted") return;
 
-    timerRef.current = setTimeout(() => setPhase("erasing"), hauntedDuration);
+    timerRef.current = setTimeout(() => {
+      setPhase("erasing");
+    }, hauntedDuration);
 
     return clearTimer;
   }, [phase, hauntedDuration, clearTimer]);
 
-  // erasing effect
   useEffect(() => {
     if (phase !== "erasing") return;
 
-    if (displayText.length === 0) {
+     if (displayText.length === 0) {
       timerRef.current = setTimeout(() => setPhase("complete"), 100);
       return clearTimer;
     }
 
-    const jitter = Math.random() * 20 - 10; // random jitter bw -10 and +10
+    const jitter = Math.random() * 20 - 10;
 
     timerRef.current = setTimeout(() => {
-      setDisplayText(displayText.slice(0, -1));
+      setDisplayText((prev) => prev.slice(0, -1));
     }, eraseSpeed + jitter);
 
     return clearTimer;
-  }, [displayText, phase, eraseSpeed, clearTimer]);
+  }, [phase, displayText, eraseSpeed, clearTimer]);
 
-  // complete
   useEffect(() => {
-    if (phase === "complete") return;
+    if (phase !== "complete") return;
 
     timerRef.current = setTimeout(() => {
       setQuote(getRandomQuote());
@@ -143,7 +139,7 @@ export function useTypewriter(options: Options = {}) {
       setDisplayText(quote.text);
       setPhase("pausing");
     }
-  }, [clearTimer, phase, quote.text]);
+  }, [phase, quote.text, clearTimer]);
 
   return {
     state: { displayText, phase, quote, progress, isHaunted },
