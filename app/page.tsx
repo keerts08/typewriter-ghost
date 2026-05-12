@@ -12,8 +12,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-
-const FULL_TEXT = "It was a dark and stormy night.";
+import { GhostIcon } from "lucide-react";
 
 export default function Home() {
   const [pressedLeys, setPressedKeys] = useState<Set<string>>(new Set());
@@ -54,8 +53,8 @@ export default function Home() {
    const phaseLabel: Record<string, string> = {
      idle: "● waiting",
      typing: "● typing",
-     pausing: "● resting",
-     haunted: "✦ haunted",
+     pausing: "resting",
+     haunted: "haunted",
      erasing: "✦ erasing",
      complete: "↺ rewinding",
    };
@@ -87,7 +86,7 @@ export default function Home() {
           className="absolute inset-0 pointer-events-none animate-pulse"
           style={{
             background:
-              "radial-gradient(ellipse at center, rgba(100,50,150,0.07) 0%, transparent 60%)",
+              "radial-gradient(ellipse at center, rgba(100,50,150,0.4) 0%, transparent 90%)",
           }}
         />
       )}
@@ -119,15 +118,28 @@ export default function Home() {
           />
           <div className="p-5 md:p-7">
             <div
-              className="relative mb-6 rounded-sm overflow-hidden min-h-45"
+              className={cn(
+                "relative mb-6 rounded-sm overflow-hidden",
+                state.isHaunted && "animate-haunted-paper",
+              )}
               style={{
                 background: "linear-gradient(180deg, #f5e8c8 0%, #ede0b0 100%)",
                 boxShadow:
                   "0 4px 20px rgba(0,0,0,0.4), inset 0 0 40px rgba(0,0,0,0.06)",
               }}
             >
+              <div className="absolute inset-0 pointer-events-none">
+                {Array.from({ length: 12 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="absolute w-full border-b border-black/5"
+                    style={{ top: `${(i + 1) * 20}px` }}
+                  />
+                ))}
+                <div className="absolute top-0 bottom-0 left-10 border-l border-red-400/20" />
+              </div>
               <div className="relative p-5">
-                <p className="font-special-elite text-sm md:text-base leading-relaxed min-h-30 wrap-break-word text-[#1a1208]">
+                <p className="font-special-elite text-sm md:text-base leading-relaxed min-h-30 wrap-break-word text-[#1a1208] ml-8">
                   {state.displayText}
                   <span
                     className={cn(
@@ -148,13 +160,46 @@ export default function Home() {
                   )}
                 >
                   {state.isHaunted && (
-                    <span className="text-[8px] mr-1 animate-pulse">👻</span>
+                    <GhostIcon className="w-3 h-3 mr-1 text-purple-700/80 animate-pulse" />
                   )}
                   {phaseLabel[state.phase] ?? state.phase}
                 </Badge>
               </div>
             </div>
+
+            <div className="mb-5 flex items-center justify-between">
+              <p className="font-special-elite text-sm italic text-[#f5e8c8] opacity-35">
+                <span className="text-[#f5e8c8] opacity-85">
+                  {state.quote.source}
+                </span>
+                {" · "}
+                {state.quote.author}{" "}
+                <span className="text-[#f5e8c8] opacity-80">
+                  ({state.quote.year})
+                </span>
+              </p>
+
+              <div className="flex items-center gap-2">
+                <div className="w-24 h-4 rounded-full overflow-hidden bg-[#f5e8c8] opacity-20">
+                  <div
+                    className="h-full transition-all duration-100 bg-[#b48c3c] opacity-50"
+                    style={{ width: `${state.progress}%` }}
+                  />
+                </div>
+                <span className="font-special-elite text-sm text-[#f5e8c8] opacity-20 w-8">
+                  {state.progress}%
+                </span>
+              </div>
+            </div>
+            {/* keyboard */}
           </div>
+          <div
+            className="h-px w-full mt-1"
+            style={{
+              background:
+                "linear-gradient(to right, transparent, rgba(180,140,60,0.4), transparent)",
+            }}
+          />
         </div>
       </div>
 

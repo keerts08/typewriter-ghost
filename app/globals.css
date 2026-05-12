@@ -177,3 +177,27 @@ body {
 .animate-flicker {
   animation: flicker 0.2s linear infinite;
 }
+
+@keyframes paper-sepia {
+
+  0%,
+  100% {
+    filter: sepia(0) brightness(1);
+  }
+
+  20% {
+    filter: sepia(0.4) brightness(0.88);
+  }
+
+  50% {
+    filter: sepia(0.5) brightness(0.82);
+  }
+
+  80% {
+    filter: sepia(0.2) brightness(0.92);
+  }
+}
+
+.animate-haunted-paper {
+  animation: paper-sepia 2.5s ease-in-out infinite;
+}
