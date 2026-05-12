@@ -1,8 +1,8 @@
 export interface Quote {
-    text: string;
-    source: string;
-    author: string;
-    year: number;
+  text: string;
+  source: string;
+  author: string;
+  year: number;
 }
 
 export const QUOTES: Quote[] = [
@@ -69,5 +69,5 @@ export const QUOTES: Quote[] = [
 ];
 
 export function getRandomQuote(): Quote {
-    return QUOTES[Math.floor(Math.random() * QUOTES. length)]
+  return QUOTES[Math.floor(Math.random() * QUOTES.length)];
 }
