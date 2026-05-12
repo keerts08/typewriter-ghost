@@ -92,10 +92,10 @@ export default function Home() {
       )}
 
       <div className="relative z-10 text-center mb-8">
-        <h1 className="font-special-elite text-sm tracking-[0.4em] mb-1 text-[#f5e8c8]">
+        <h1 className="font-special-elite text-2xl tracking-[0.2em] mb-1 text-[#f5e8c8]">
           Haunted Typewriter
         </h1>
-        <p className="font-special-elite text-xs italic text-[#f5e8c8] opacity-20">
+        <p className="font-special-elite text-sm italic text-[#f5e8c8] opacity-20">
           voices from the pages
         </p>
       </div>
@@ -168,7 +168,7 @@ export default function Home() {
             </div>
 
             <div className="mb-5 flex items-center justify-between">
-              <p className="font-special-elite text-sm italic text-[#f5e8c8] opacity-35">
+              <p className="font-special-elite text-sm italic text-[#f5e8c8] opacity-30">
                 <span className="text-[#f5e8c8] opacity-85">
                   {state.quote.source}
                 </span>
@@ -204,7 +204,7 @@ export default function Home() {
       </div>
 
       <div className="relative z-10 mt-6">
-        <p className="font-special-elite text-[10px] tracking-widest uppercase text-[#f5e8c8] opacity-10">
+        <p className="font-special-elite text-xs tracking-widest uppercase text-[#f5e8c8] opacity-30">
           {!hasInteracted.current
             ? "click anywhere to enable sound"
             : "the machine remembers everything"}

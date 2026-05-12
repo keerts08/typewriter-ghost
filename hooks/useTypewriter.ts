@@ -29,8 +29,13 @@ export function useTypewriter(options: Options = {}) {
     hauntedDuration = options.hauntedDuration ?? 1800,
     onKeystroke = options.onKeystroke,
   } = options;
-
-  const [quote, setQuote] = useState<Quote>(getRandomQuote);
+  
+  const [quote, setQuote] = useState<Quote>({
+    text: "keerthi",
+    source: "??",
+    author: "keerthi",
+    year: 2029,
+  });
   const [displayText, setDisplayText] = useState("");
   const [phase, setPhase] = useState<Phase>("typing");
 
@@ -38,6 +43,10 @@ export function useTypewriter(options: Options = {}) {
 
   const clearTimer = useCallback(() => {
     if (timerRef.current) clearTimeout(timerRef.current);
+  }, []);
+
+  useEffect(() => {
+    setQuote(getRandomQuote());
   }, []);
 
   useEffect(() => {
