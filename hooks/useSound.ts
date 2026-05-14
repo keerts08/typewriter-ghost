@@ -7,7 +7,7 @@ interface Options {
   enabled?: boolean;
 }
 
-export function useSound({ enabled = true, volume = 0.5 }: Options = {}) {
+export function useSound({ enabled = true, volume = 1 }: Options = {}) {
   const ctx = useRef<AudioContext | null>(null);
 
   const getCtx = useCallback(() => {
@@ -20,7 +20,7 @@ export function useSound({ enabled = true, volume = 0.5 }: Options = {}) {
 
   const playKeystrokeSound = useCallback(
     (char?: string) => {
-      if (!enabled) return;
+      if (!enabled || volume === 0) return;
 
       try {
         const context = getCtx();
@@ -59,7 +59,7 @@ export function useSound({ enabled = true, volume = 0.5 }: Options = {}) {
   );
 
   const playBellSound = useCallback(() => {
-    if (!enabled) return;
+    if (!enabled || volume === 0) return;
 
     try {
       const context = getCtx();
@@ -84,7 +84,7 @@ export function useSound({ enabled = true, volume = 0.5 }: Options = {}) {
   }, [enabled, volume, getCtx]);
 
   const playEraseSound = useCallback(() => {
-    if (!enabled) return;
+    if (!enabled || volume === 0) return;
     try {
       const context = getCtx();
       const now = context.currentTime;
@@ -118,7 +118,7 @@ export function useSound({ enabled = true, volume = 0.5 }: Options = {}) {
   }, [enabled, volume, getCtx]);
 
   const playPaperLoadSound = useCallback(() => {
-    if (!enabled) return;
+    if (!enabled || volume === 0  ) return;
     try {
       const context = getCtx();
       const now = context.currentTime;

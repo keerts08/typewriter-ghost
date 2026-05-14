@@ -5,14 +5,20 @@ import { useTypewriter } from "@/hooks/useTypewriter";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Switch } from "@/components/ui/switch";
+import { Slider } from "@/components/ui/slider";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import { GhostIcon, RotateCcw, SkipForward, Volume2, VolumeX } from "lucide-react";
+import {
+  GhostIcon,
+  RotateCcw,
+  SkipForward,
+  Volume2,
+  VolumeX,
+} from "lucide-react";
 import { useSound } from "@/hooks/useSound";
 
 const keyRows = [
@@ -23,13 +29,18 @@ const keyRows = [
 
 export default function Home() {
   const [soundEnabled, setSoundEnabled] = useState(false);
-  const [volume, setVolume] = useState(0.5);
+  const [volume, setVolume] = useState(5);
 
   const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
 
   const hasInteracted = useRef(false);
 
-  const { playKeystrokeSound, playBellSound, playEraseSound, playPaperLoadSound } = useSound({
+  const {
+    playKeystrokeSound,
+    playBellSound,
+    playEraseSound,
+    playPaperLoadSound,
+  } = useSound({
     enabled: soundEnabled,
     volume,
   });
@@ -76,14 +87,18 @@ export default function Home() {
     }
   }, [state.phase, playBellSound]);
 
-useEffect(() => {
-  if (state.phase === "erasing" && hasInteracted.current) {
-    playEraseSound();
-  }
-}, [state.displayText.length, playEraseSound]);
+  useEffect(() => {
+    if (state.phase === "erasing" && hasInteracted.current) {
+      playEraseSound();
+    }
+  }, [state.displayText.length, playEraseSound]);
 
   useEffect(() => {
-    if (state.phase === "typing" && state.displayText === "" && hasInteracted.current) {
+    if (
+      state.phase === "typing" &&
+      state.displayText === "" &&
+      hasInteracted.current
+    ) {
       playPaperLoadSound();
     }
   }, [state.phase, playPaperLoadSound, state.displayText]);
@@ -373,6 +388,19 @@ useEffect(() => {
                   </TooltipTrigger>
                   <TooltipContent side="top">Toggle sound</TooltipContent>
                 </Tooltip>
+                <div className="w-24">
+                  <Slider
+                    className="**:[[role=slider]]:bg-[#f5e8c8] **:[[role=slider]]:border-[#f5e8c8] **:data-[slot=slider-range]:bg-[#f5e8c8] **:data-[slot=slider-track]:bg-[#f5e8c8]/20 opacity-70 disabled:opacity-30 rounded-xl"
+                    value={[volume]}
+                    onValueChange={(v) => {
+                      setVolume(v[0]);
+                    }}
+                    min={0}
+                    max={100}
+                    step={10}
+                    disabled={!soundEnabled}
+                  />
+                </div>
               </div>
             </div>
           </div>
