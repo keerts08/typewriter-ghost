@@ -307,7 +307,7 @@ useEffect(() => {
                             : "0 3px 0 #0d0902, 0 5px 6px rgba(0,0,0,0.5)",
                         }}
                       >
-                        <BackspaceIcon className="w-3 h-3" />
+                        <BackspaceIcon className="w-4 h-4" />
                       </div>
                     );
                   })()}
