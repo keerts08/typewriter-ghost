@@ -12,7 +12,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import { GhostIcon, Volume2, VolumeX } from "lucide-react";
+import { GhostIcon, RotateCcw, SkipForward, Volume2, VolumeX } from "lucide-react";
+import { useSound } from "@/hooks/useSound";
 
 const keyRows = [
   ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
@@ -21,33 +22,44 @@ const keyRows = [
 ];
 
 export default function Home() {
+  const [soundEnabled, setSoundEnabled] = useState(false);
+  const [volume, setVolume] = useState(0.5);
+
   const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
+
   const hasInteracted = useRef(false);
 
-  const handleKeystroke = useCallback((char: string) => {
-    if (hasInteracted.current) {
-      // playSound(char);
-    }
+  const { playKeystrokeSound, playBellSound } = useSound({
+    enabled: soundEnabled,
+    volume,
+  });
 
-    const key = char.toUpperCase();
-    setPressedKeys((prev) => {
-      const next = new Set(prev);
-      next.add(key);
+  const handleKeystroke = useCallback(
+    (char: string) => {
+      if (hasInteracted.current) {
+        playKeystrokeSound(char);
+      }
+      const key = char.toUpperCase();
+      setPressedKeys((prev) => {
+        const next = new Set(prev);
+        next.add(key);
 
-      setTimeout(() => {
-        setPressedKeys((prev) => {
-          const n = new Set(prev);
-          n.delete(key);
-          return n;
-        });
-      }, 150);
-      return next;
-    });
-  }, []);
+        setTimeout(() => {
+          setPressedKeys((prev) => {
+            const n = new Set(prev);
+            n.delete(key);
+            return n;
+          });
+        }, 150);
+        return next;
+      });
+    },
+    [playKeystrokeSound],
+  );
 
   const handleFirstClick = () => {
     hasInteracted.current = true;
-    // setSoundEnabled(true);
+    setSoundEnabled(true);
   };
 
   const { state, restart, skip } = useTypewriter({
@@ -57,6 +69,12 @@ export default function Home() {
     hauntedDuration: 2000,
     onKeystroke: handleKeystroke,
   });
+
+  useEffect(() => {
+    if (state.phase === "pausing" && hasInteracted.current) {
+      playBellSound();
+    }
+  }, [state.phase, playBellSound]);
 
   const phaseLabel: Record<string, string> = {
     idle: "● waiting",
@@ -251,32 +269,62 @@ export default function Home() {
 
             <Separator className="mb-4 bg-[#f5e8c8] opacity-10" />
 
-            <div className="flex flex-wrap items-center justify-center gap-4">
+            <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" onClick={restart}>
-                  Restart
-                </Button>
-                <Button variant="outline" size="sm" onClick={skip}>
-                  Skip
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        restart();
+                      }}
+                      className="h-8 px-3 font-special-elite text-xs transition-opacity border border-[#f5e8c8] opacity-50 text-[#f5e8c8]"
+                    >
+                      <RotateCcw className="w-3 h-3 mr-1.5" />
+                      new page
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">Load a new quote</TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        skip();
+                      }}
+                      className="h-8 px-3 font-special-elite text-xs transition-opacity border border-[#f5e8c8] opacity-50 text-[#f5e8c8]"
+                    >
+                      <SkipForward className="w-3 h-3 mr-1.5" />
+                      finish
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">Skip to the end</TooltipContent>
+                </Tooltip>
               </div>
               <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <Button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleFirstClick();
-                    }}
-                    className="hover:opacity-70 transition-opacity text-[#f5e8c8] opacity-40"
-                    size="sm"
-                  >
-                    {true ? (
-                      <Volume2 className="w-3.5 h-3.5" />
-                    ) : (
-                      <VolumeX className="w-3.5 h-3.5" />
-                    )}
-                  </Button>
-                </div>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleFirstClick();
+                        setSoundEnabled(!soundEnabled);
+                      }}
+                      className="hover:opacity-70 transition-opacity text-[#f5e8c8] opacity-40"
+                      size="sm"
+                    >
+                      {soundEnabled ? (
+                        <Volume2 className="w-3.5 h-3.5" />
+                      ) : (
+                        <VolumeX className="w-3.5 h-3.5" />
+                      )}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">Toggle sound</TooltipContent>
+                </Tooltip>
               </div>
             </div>
           </div>
