@@ -29,7 +29,7 @@ export default function Home() {
 
   const hasInteracted = useRef(false);
 
-  const { playKeystrokeSound, playBellSound } = useSound({
+  const { playKeystrokeSound, playBellSound, playEraseSound, playPaperLoadSound } = useSound({
     enabled: soundEnabled,
     volume,
   });
@@ -75,6 +75,18 @@ export default function Home() {
       playBellSound();
     }
   }, [state.phase, playBellSound]);
+
+useEffect(() => {
+  if (state.phase === "erasing" && hasInteracted.current) {
+    playEraseSound();
+  }
+}, [state.displayText.length, playEraseSound]);
+
+  useEffect(() => {
+    if (state.phase === "typing" && state.displayText === "" && hasInteracted.current) {
+      playPaperLoadSound();
+    }
+  }, [state.phase, playPaperLoadSound, state.displayText]);
 
   const phaseLabel: Record<string, string> = {
     idle: "● waiting",
@@ -249,22 +261,58 @@ export default function Home() {
                   })}
                 </div>
               ))}
-              <div
-                className="mt-0.5 h-8 rounded-sm transition-all duration-75"
-                style={{
-                  width: "300px",
-                  background: pressedKeys.has(" ")
-                    ? "linear-gradient(180deg, #2a1e0a, #1a1208)"
-                    : "linear-gradient(180deg, #2c2010, #1a1208)",
-                  boxShadow: pressedKeys.has(" ")
-                    ? "0 1px 0 #0d0902"
-                    : "0 3px 0 #0d0902, 0 5px 6px rgba(0,0,0,0.5)",
-                  border: "1px solid rgba(100,80,30,0.3)",
-                  transform: pressedKeys.has(" ")
-                    ? "translateY(2px)"
-                    : "translateY(0)",
-                }}
-              />
+
+              <div className="inline-flex gap-1 mt-1">
+                <div
+                  className="mt-0.5 h-8 rounded-sm transition-all duration-75"
+                  style={{
+                    width: "300px",
+                    background: pressedKeys.has(" ")
+                      ? "linear-gradient(180deg, #2a1e0a, #1a1208)"
+                      : "linear-gradient(180deg, #2c2010, #1a1208)",
+                    boxShadow: pressedKeys.has(" ")
+                      ? "0 1px 0 #0d0902"
+                      : "0 3px 0 #0d0902, 0 5px 6px rgba(0,0,0,0.5)",
+                    border: "1px solid rgba(100,80,30,0.3)",
+                    transform: pressedKeys.has(" ")
+                      ? "translateY(2px)"
+                      : "translateY(0)",
+                  }}
+                />
+                <div className="flex gap-1">
+                  {(() => {
+                    const active = state.phase === "erasing";
+                    return (
+                      <div
+                        className={cn(
+                          "flex h-8 mt-0.5 min-w-12 select-none items-center justify-center rounded-sm border px-3 font-special-elite text-[11px] transition-all duration-75",
+                          active
+                            ? [
+                                "translate-y-0.5",
+                                "border-[rgba(100,60,60,0.4)]",
+                                "text-[rgba(230,100,100,0.9)]",
+                              ]
+                            : [
+                                "translate-y-0",
+                                "border-[rgba(100,80,30,0.3)]",
+                                "text-[rgba(180,140,60,0.5)]",
+                              ],
+                        )}
+                        style={{
+                          background: active
+                            ? "linear-gradient(180deg, #2a1e0a, #1a1208)"
+                            : "linear-gradient(180deg, #2c2010, #1a1208)",
+                          boxShadow: active
+                            ? "0 1px 0 #0d0902"
+                            : "0 3px 0 #0d0902, 0 5px 6px rgba(0,0,0,0.5)",
+                        }}
+                      >
+                        <BackspaceIcon className="w-3 h-3" />
+                      </div>
+                    );
+                  })()}
+                </div>
+              </div>
             </div>
 
             <Separator className="mb-4 bg-[#f5e8c8] opacity-10" />
@@ -348,3 +396,27 @@ export default function Home() {
     </div>
   );
 }
+
+const BackspaceIcon = ({ className }: { className?: string }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+  >
+    <path
+      d="M20 5H9C7.89543 5 7 5.89543 7 7L4 12L7 17C7 18.1046 7.89543 19 9 19H20C21.1046 19 22 18.1046 22 17V7C22 5.89543 21.1046 5 20 5Z"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M16 9L12 15M12 9L16 15"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);

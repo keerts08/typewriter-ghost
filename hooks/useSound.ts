@@ -7,10 +7,7 @@ interface Options {
   enabled?: boolean;
 }
 
-export function useSound({
-  enabled = true,
-  volume = 0.5,
-}: Options = {}) {
+export function useSound({ enabled = true, volume = 0.5 }: Options = {}) {
   const ctx = useRef<AudioContext | null>(null);
 
   const getCtx = useCallback(() => {
@@ -61,34 +58,94 @@ export function useSound({
     [enabled, volume, getCtx],
   );
 
-  const playBellSound = useCallback(
-    (char?: string) => {
-      if (!enabled) return;
+  const playBellSound = useCallback(() => {
+    if (!enabled) return;
 
-      try {
-        const context = getCtx();
-        const now = context.currentTime;
+    try {
+      const context = getCtx();
+      const now = context.currentTime;
 
-        const osc = context.createOscillator();
-        osc.type = "sine";
-        osc.frequency.setValueAtTime(2200, now);
-        osc.frequency.exponentialRampToValueAtTime(1800, now + 0.3);
+      const osc = context.createOscillator();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(2200, now);
+      osc.frequency.exponentialRampToValueAtTime(1800, now + 0.3);
 
-        const gain = context.createGain();
-        gain.gain.setValueAtTime(volume * 0.4, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+      const gain = context.createGain();
+      gain.gain.setValueAtTime(volume * 0.4, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
 
+      osc.connect(gain);
+      gain.connect(context.destination);
+      osc.start(now);
+      osc.stop(now + 0.4);
+    } catch (error) {
+      console.error("Error playing key hitting paper sound:", error);
+    }
+  }, [enabled, volume, getCtx]);
 
-        osc.connect(gain);
-        gain.connect(context.destination);
-        osc.start(now);
-        osc.stop(now + 0.4);
-      } catch (error) {
-        console.error("Error playing key hitting paper sound:", error);
+  const playEraseSound = useCallback(() => {
+    if (!enabled) return;
+    try {
+      const context = getCtx();
+      const now = context.currentTime;
+
+      const bufferSize = 0.02 * context.sampleRate;
+      const buffer = context.createBuffer(1, bufferSize, context.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = (Math.random() * 2 - 1) * 0.3;
       }
-    },
-    [enabled, volume, getCtx],
-  );
+
+      const source = context.createBufferSource();
+      source.buffer = buffer;
+
+      const filter = context.createBiquadFilter();
+      filter.type = "highpass";
+      filter.frequency.value = 3000;
+
+      const gain = context.createGain();
+      gain.gain.setValueAtTime(volume * 0.2, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.02);
+
+      source.connect(filter);
+      filter.connect(gain);
+      gain.connect(context.destination);
+      source.start(now);
+      source.stop(now + 0.025);
+    } catch (error) {
+      console.error("Error playing erasing sound:", error);
+    }
+  }, [enabled, volume, getCtx]);
+
+  const playPaperLoadSound = useCallback(() => {
+    if (!enabled) return;
+    try {
+      const context = getCtx();
+      const now = context.currentTime;
+
+      for (let i = 0; i < 8; i++) {
+        const t = now + i * 0.045;
+        const bufferSize = 0.025 * context.sampleRate;
+        const buf = context.createBuffer(1, bufferSize, context.sampleRate);
+        const data = buf.getChannelData(0);
+        for (let j = 0; j < bufferSize; j++) {
+          data[j] = (Math.random() * 2 - 1) * (1 - j / bufferSize);
+        }
+
+        const src = context.createBufferSource();
+        src.buffer = buf;
+        const gain = context.createGain();
+        gain.gain.setValueAtTime(volume * 0.4 + (1 - i * 0.08), t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.025);
+        src.connect(gain);
+        gain.connect(context.destination);
+        src.start(t);
+        src.stop(t + 0.03);
+      }
+    } catch (error) {
+      console.error("Error playing paper load sound:", error);
+    }
+  }, [enabled, volume, getCtx]);
 
   useEffect(() => {
     return () => {
@@ -96,5 +153,5 @@ export function useSound({
     };
   }, []);
 
-  return { playKeystrokeSound, playBellSound };
+  return { playKeystrokeSound, playBellSound, playEraseSound, playPaperLoadSound };
 }
