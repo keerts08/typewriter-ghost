@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { getRandomQuote, Quote } from "@/quotes";
+import { getRandomQuote, Quote } from "@/lib/quotes";
 
 type Phase = "typing" | "pausing" | "haunted" | "erasing" | "complete";
 

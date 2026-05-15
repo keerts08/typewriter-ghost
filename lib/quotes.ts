@@ -5,7 +5,7 @@ export interface Quote {
   year: number;
 }
 
-export const NOVEL_QUOTES: Quote[] = [
+export const FALLBACK_QUOTES: Quote[] = [
   {
     text: "It was a bright cold day in April, and the clocks were striking thirteen.",
     source: "Nineteen Eighty-Four",
@@ -164,6 +164,6 @@ export const NOVEL_QUOTES: Quote[] = [
   },
 ];
 
-export function getRandomQuote(): Quote {
-  return NOVEL_QUOTES[Math.floor(Math.random() * NOVEL_QUOTES.length)];
+export function getRandomQuote() {
+  return FALLBACK_QUOTES[Math.floor(Math.random() * FALLBACK_QUOTES.length)];
 }
